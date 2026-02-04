@@ -1,0 +1,70 @@
+name: ollama-webpage
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_KEEP_ALIVE=300m
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # GPU 사용 시(ubuntu+nvidia-container-toolkit 필요)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen3-custom}
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./ollama/Modelfile:/Modelfile:ro
+    entrypoint: ["sh", "-lc"]
+    # sh -lc 는 "단일 문자열" 인자를 받아야 하므로, command를 단일 원소 배열로 전달
+    command:
+      - >-
+        echo "[ollama-init] waiting for ollama...";
+        until ollama list >/dev/null 2>&1; do sleep 1; done;
+        echo "[ollama-init] ensuring custom model: ${OLLAMA_MODEL:-qwen3-custom}";
+        ollama pull qwen3:4b || true;
+        ollama create "${OLLAMA_MODEL:-qwen3-custom}" -f /Modelfile || true;
+        echo "[ollama-init] done";
+    restart: "no"
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: ollama-web-app
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - PORT=${APP_PORT:-3000}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen3-custom}
+      - OLLAMA_REQUEST_KEEP_ALIVE=${OLLAMA_REQUEST_KEEP_ALIVE:-300m}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
