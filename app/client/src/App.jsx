@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 function uid() {
   return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
@@ -76,10 +78,17 @@ function Header({ onReset, isResetting, theme, onToggleTheme }) {
 }
 
 function Bubble({ role, content, streaming }) {
+  const isAssistant = role === 'assistant';
   return (
     <div className={`bubble-row ${role}`}>
       <div className={`bubble ${streaming ? 'streaming' : ''}`}>
-        {content}
+        {isAssistant ? (
+          <ReactMarkdown className="md" remarkPlugins={[remarkGfm]}>
+            {content || ''}
+          </ReactMarkdown>
+        ) : (
+          content
+        )}
         {streaming ? <span className="cursor" /> : null}
       </div>
     </div>

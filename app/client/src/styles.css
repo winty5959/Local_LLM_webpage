@@ -30,6 +30,17 @@
   --spinner-stroke: rgba(184, 137, 90, 0.95);
   --overlay-title: rgba(31, 27, 22, 0.92);
   --overlay-subtitle: rgba(31, 27, 22, 0.55);
+
+  /* Markdown */
+  --md-code-bg: rgba(31, 27, 22, 0.08);
+  --md-code-border: rgba(31, 27, 22, 0.14);
+  --md-pre-bg: rgba(31, 27, 22, 0.06);
+  --md-pre-border: rgba(31, 27, 22, 0.12);
+  --md-quote-bg: rgba(125, 76, 255, 0.08);
+  --md-quote-border: rgba(125, 76, 255, 0.45);
+  --md-hr: rgba(31, 27, 22, 0.12);
+  --md-table-header: rgba(31, 27, 22, 0.06);
+  --md-table-row: rgba(31, 27, 22, 0.03);
 }
 
 :root[data-theme='dark'] {
@@ -63,6 +74,17 @@
   --spinner-stroke: rgba(200, 176, 255, 0.9);
   --overlay-title: rgba(233, 231, 227, 0.92);
   --overlay-subtitle: rgba(233, 231, 227, 0.62);
+
+  /* Markdown */
+  --md-code-bg: rgba(233, 231, 227, 0.08);
+  --md-code-border: rgba(233, 231, 227, 0.14);
+  --md-pre-bg: rgba(233, 231, 227, 0.05);
+  --md-pre-border: rgba(233, 231, 227, 0.16);
+  --md-quote-bg: rgba(142, 107, 255, 0.12);
+  --md-quote-border: rgba(142, 107, 255, 0.55);
+  --md-hr: rgba(233, 231, 227, 0.18);
+  --md-table-header: rgba(233, 231, 227, 0.08);
+  --md-table-row: rgba(233, 231, 227, 0.04);
 }
 
 * {
@@ -251,6 +273,141 @@ body {
   color: var(--text);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
+}
+
+/* Markdown inside assistant bubble */
+.bubble .md {
+  white-space: normal;
+}
+
+.bubble :where(p, ul, ol, pre, blockquote, table, hr) {
+  margin: 0;
+}
+
+.bubble :where(p, ul, ol, pre, blockquote, table) {
+  margin-top: 10px;
+}
+
+.bubble :where(p, ul, ol, pre, blockquote, table):first-child {
+  margin-top: 0;
+}
+
+.bubble :where(ul, ol) {
+  padding-left: 1.1em;
+}
+
+.bubble :where(li) {
+  margin-top: 4px;
+}
+
+.bubble :where(li)::marker {
+  color: var(--muted);
+}
+
+.bubble :where(strong) {
+  font-weight: 700;
+}
+
+.bubble :where(em) {
+  font-style: italic;
+  color: var(--text);
+}
+
+.bubble :where(a) {
+  color: var(--accent);
+  text-underline-offset: 2px;
+}
+
+.bubble :where(a:hover) {
+  text-decoration-thickness: 2px;
+}
+
+.bubble :where(h1, h2, h3, h4) {
+  margin: 12px 0 6px;
+  line-height: 1.25;
+}
+
+.bubble :where(h1) {
+  font-size: 1.12em;
+}
+
+.bubble :where(h2) {
+  font-size: 1.08em;
+}
+
+.bubble :where(h3, h4) {
+  font-size: 1.02em;
+}
+
+/* Inline code */
+.bubble :where(code) {
+  font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.92em;
+  padding: 0.12em 0.36em;
+  border-radius: 6px;
+  background: var(--md-code-bg);
+  border: 1px solid var(--md-code-border);
+  color: var(--text);
+}
+
+/* Code block */
+.bubble :where(pre) {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--md-pre-bg);
+  border: 1px solid var(--md-pre-border);
+  overflow: auto;
+  white-space: pre;
+}
+
+.bubble :where(pre code) {
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: block;
+}
+
+/* Blockquote */
+.bubble :where(blockquote) {
+  padding: 8px 12px;
+  border-left: 3px solid var(--md-quote-border);
+  background: var(--md-quote-bg);
+  border-radius: 8px;
+  color: var(--text);
+}
+
+/* HR */
+.bubble :where(hr) {
+  border: none;
+  height: 1px;
+  background: var(--md-hr);
+  margin: 12px 0;
+}
+
+/* Tables */
+.bubble :where(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.bubble :where(th, td) {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.bubble :where(th) {
+  background: var(--md-table-header);
+  font-weight: 600;
+}
+
+.bubble :where(tbody tr:nth-child(even)) {
+  background: var(--md-table-row);
 }
 
 .bubble-row.user .bubble {
