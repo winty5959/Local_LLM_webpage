@@ -71,6 +71,14 @@ cp .env.example .env
 ---
 
 ## 변경 내역
+- 마크다운 UX 추가
+  - app/client/src/App.jsx
+    - react-markdown + remark-gfm 적용
+    - assistant 메시지만 마크다운 렌더링(유저 입력은 기존처럼 텍스트)
+  - app/client/src/styles.css
+    - 버블 내부 마크다운 요소(p/ul/ol/pre/code/table/...) 스타일 추가
+  - app/client/package.json / app/client/package-lock.json
+    - 의존성 추가: react-markdown, remark-gfm
 - 다크모드/일반모드 토글 추가
   - 우상단 `Ollama-local LLM` 옆에 아이콘 버튼(달/해)으로 전환
   - (안드로이드/아이폰) 최초 진입은 기기 설정(`prefers-color-scheme`)을 따르고, 이후 사용자 선택은 localStorage로 유지
