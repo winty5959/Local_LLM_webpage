@@ -41,6 +41,11 @@ sudo systemctl restart docker
 ```bash
 docker run --rm --gpus all nvidia/cuda:12.3.2-base-ubuntu22.04 nvidia-smi
 ```
+- NVIDIA CUDA Docker 이미지로 컨테이너를 생성하고, GPU 상태를 확인한 뒤 자동으로 삭제하는 명령어
+  - nvidia/cuda:12.3.2-base-ubuntu22.04 이미지로 새 컨테이너 생성
+  - 호스트의 모든 GPU를 컨테이너에 연결
+  - 컨테이너 안에서 nvidia-smi 명령어 실행 (GPU 정보 출력)
+  - 명령어 완료 후 컨테이너 자동 삭제
 
 ## 환경변수(.env 선택)
 `compose.yaml`에 기본값이 있어 `.env` 없이도 동작합니다.
