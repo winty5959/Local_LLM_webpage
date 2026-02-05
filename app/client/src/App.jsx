@@ -5,16 +5,72 @@ function uid() {
 }
 
 const SKIP_RELOAD_OVERLAY_ONCE_KEY = 'skip_reload_overlay_once';
+const THEME_STORAGE_KEY = 'theme_preference_v1';
 
-function Header({ onReset, isResetting }) {
+function isAndroidOrIOS() {
+  // 요구사항: 안드로이드/아이폰은 기기 기본 설정(prefer-color-scheme)으로 시작
+  const ua = navigator?.userAgent || '';
+  return /Android/i.test(ua) || /iPhone|iPad|iPod/i.test(ua);
+}
+
+function getSystemTheme() {
+  if (!window?.matchMedia) return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function MoonIcon() {
+  return (
+    <svg className="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M21 12.5A8.5 8.5 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg className="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M12 2.2v2.2M12 19.6v2.2M21.8 12h-2.2M4.4 12H2.2M19.1 4.9l-1.6 1.6M6.5 17.5 4.9 19.1M19.1 19.1l-1.6-1.6M6.5 6.5 4.9 4.9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function Header({ onReset, isResetting, theme, onToggleTheme }) {
+  const isDark = theme === 'dark';
+  const toggleTitle = isDark ? '일반모드로 전환' : '다크모드로 전환';
+
   return (
     <header className="chat-header">
       <button className="header-title" type="button" onClick={onReset} title="새로고침">
         <span className="brand-dot" />
         <h1>KT-Open 테넌트 Chat bot</h1>
       </button>
-      <div className="header-meta">Ollama-local LLM</div>
-      {isResetting ? <span className="reset-pulse" aria-hidden="true" /> : null}
+
+      <div className="header-right">
+        <div className="header-meta">Ollama-local LLM</div>
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={onToggleTheme}
+          title={toggleTitle}
+          aria-label={toggleTitle}
+        >
+          {isDark ? <SunIcon /> : <MoonIcon />}
+        </button>
+        {isResetting ? <span className="reset-pulse" aria-hidden="true" /> : null}
+      </div>
     </header>
   );
 }
@@ -31,6 +87,18 @@ function Bubble({ role, content, streaming }) {
 }
 
 export default function App() {
+  const [themePref, setThemePref] = useState(() => {
+    try {
+      const saved = window.localStorage?.getItem(THEME_STORAGE_KEY);
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch {
+      // ignore
+    }
+
+    return isAndroidOrIOS() ? 'system' : 'light';
+  });
+  const [systemTheme, setSystemTheme] = useState(() => getSystemTheme());
+
   const [messages, setMessages] = useState([]); // {id, role, content}
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -44,6 +112,37 @@ export default function App() {
     () => messages.map((m) => ({ role: m.role, content: m.content })),
     [messages]
   );
+
+  const effectiveTheme = themePref === 'system' ? systemTheme : themePref;
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = effectiveTheme;
+  }, [effectiveTheme]);
+
+  useEffect(() => {
+    if (themePref !== 'system' || !window?.matchMedia) return;
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = (e) => setSystemTheme(e.matches ? 'dark' : 'light');
+    setSystemTheme(mql.matches ? 'dark' : 'light');
+
+    if (typeof mql.addEventListener === 'function') mql.addEventListener('change', onChange);
+    else mql.addListener?.(onChange);
+
+    return () => {
+      if (typeof mql.removeEventListener === 'function') mql.removeEventListener('change', onChange);
+      else mql.removeListener?.(onChange);
+    };
+  }, [themePref]);
+
+  function toggleTheme() {
+    const next = effectiveTheme === 'dark' ? 'light' : 'dark';
+    setThemePref(next);
+    try {
+      window.localStorage?.setItem(THEME_STORAGE_KEY, next);
+    } catch {
+      // ignore
+    }
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -240,7 +339,7 @@ export default function App() {
 
   return (
     <div className={`chat-shell ${isResetting ? 'chat-resetting' : ''}`}>
-      <Header onReset={resetLikeRefresh} isResetting={isResetting} />
+      <Header onReset={resetLikeRefresh} isResetting={isResetting} theme={effectiveTheme} onToggleTheme={toggleTheme} />
 
       <div className={`refresh-overlay ${isResetting ? 'is-visible' : ''}`} aria-hidden={!isResetting}>
         <div className="refresh-card" role="status" aria-live="polite">

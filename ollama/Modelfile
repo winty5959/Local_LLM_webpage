@@ -9,3 +9,10 @@ PARAMETER repeat_penalty 1.1
 PARAMETER top_p 0.9
 PARAMETER top_k 40
 PARAMETER num_ctx 4096
+
+# 가능한 레이어 모두 GPU에 올리기
+PARAMETER num_gpu 999
+
+# VRAM 부족 때문인건지... 지원을 안하는건지.. 설정하면 VRAM에 적재가 안됨.
+# PARAMETER num_batch 1024
+

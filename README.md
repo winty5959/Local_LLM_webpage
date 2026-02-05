@@ -71,6 +71,10 @@ cp .env.example .env
 ---
 
 ## 변경 내역
+- 다크모드/일반모드 토글 추가
+  - 우상단 `Ollama-local LLM` 옆에 아이콘 버튼(달/해)으로 전환
+  - (안드로이드/아이폰) 최초 진입은 기기 설정(`prefers-color-scheme`)을 따르고, 이후 사용자 선택은 localStorage로 유지
+  - 초기 진입 시 라이트↔다크 깜빡임(FOUC) 방지를 위해 early theme 적용
 - Node 서버에 스트리밍 엔드포인트 `/api/chat/stream`(SSE) 구현 및 스트리밍 안정화(연결 종료 처리)
   - 이전에 스트리밍이 안 나오던 원인은 클라이언트 연결 종료로 오인되어 Ollama 요청이 즉시 abort되던 버그였고, 이를 req.close → req.aborted / res.close로 수정해서 해결
 - `localhost:3000` 접속 시 404 발생 문제 수정

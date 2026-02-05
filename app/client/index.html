@@ -4,6 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KT-Open 테넌트 Chat bot</title>
+
+    <!-- Prevent light↔dark flash by setting theme early -->
+    <script>
+      (function () {
+        try {
+          var KEY = 'theme_preference_v1';
+          var saved = window.localStorage && window.localStorage.getItem(KEY);
+          var ua = navigator.userAgent || '';
+          var isMobile = /Android/i.test(ua) || /iPhone|iPad|iPod/i.test(ua);
+
+          var pref = saved === 'light' || saved === 'dark' ? saved : isMobile ? 'system' : 'light';
+          var systemDark =
+            pref === 'system' &&
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+          var theme = pref === 'system' ? (systemDark ? 'dark' : 'light') : pref;
+          document.documentElement.dataset.theme = theme;
+        } catch (e) {
+          // ignore
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
