@@ -24,6 +24,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+    restart: unless-stopped
 
   ollama-init:
     image: ollama/ollama:latest
